@@ -138,7 +138,19 @@ export class ChatGPTBot {
     return text
   }
   async getGPTMessage (talkerName: string, text: string): Promise<string> {
-    let gptMessage = await chatgpt(talkerName, text)
+    let gptMessage = ''
+    try {
+      gptMessage = await chatgpt(talkerName, text)
+    } catch (error) {
+      console.log(
+        '🚀 ~ file: bot.ts:136 ~ ChatGPTBot ~ getGPTMessage ~ text:',
+        text
+      )
+      console.log(
+        '🚀 ~ file: bot.ts:137 ~ ChatGPTBot ~ getGPTMessage ~ error:',
+        error
+      )
+    }
     if (gptMessage !== '') {
       DBUtils.addAssistantMessage(talkerName, gptMessage)
       return gptMessage
@@ -252,9 +264,9 @@ export class ChatGPTBot {
         `🚪 Room: ${topic} 🤵 Contact: ${talker.name()} 💬 Text: ${rawText}`
       )
     }
-    // if (this.isNonsense(talker, messageType, rawText)) {
-    //   return;
-    // }
+    if (this.isNonsense(talker, messageType, rawText)) {
+      return
+    }
     if (messageType == MessageType.Audio) {
       // 保存语音文件
       const fileBox = await message.toFileBox()
